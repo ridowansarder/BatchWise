@@ -16,7 +16,7 @@ model Batch {
   
   orgId     String
   students  Student[]
-  teacherId String?  
+  teacherName String  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -37,14 +37,13 @@ model Student {
   email       String?
   phone       String?
   address     String?
-  dateOfBirth DateTime?
+  dateOfBirth String?
   gender      Gender?
   
   orgId       String
   batchId     String
   batch       Batch    @relation(fields: [batchId], references: [id])
   attendance  Attendance[]
-  fees        Fee[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -77,29 +76,4 @@ model Attendance {
   @@index([studentId])
   @@index([date])
   @@unique([studentId, date]) 
-}
-
-enum FeeStatus {
-  PENDING
-  PAID
-  OVERDUE
-}
-
-model Fee {
-  id          String    @id @default(cuid())
-  amount      Decimal   @db.Decimal(10, 2)
-  description String?   
-  dueDate     DateTime
-  paidDate    DateTime?
-  status      FeeStatus @default(PENDING)
-  
-  orgId       String
-  studentId   String
-  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([orgId])
-  @@index([studentId])
 }

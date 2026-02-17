@@ -4,16 +4,13 @@ CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
 -- CreateEnum
 CREATE TYPE "AttendanceStatus" AS ENUM ('PRESENT', 'ABSENT', 'LATE');
 
--- CreateEnum
-CREATE TYPE "FeeStatus" AS ENUM ('PENDING', 'PAID', 'OVERDUE');
-
 -- CreateTable
 CREATE TABLE "Batch" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "capacity" INTEGER,
     "orgId" TEXT NOT NULL,
-    "teacherId" TEXT,
+    "teacherName" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -28,7 +25,7 @@ CREATE TABLE "Student" (
     "email" TEXT,
     "phone" TEXT,
     "address" TEXT,
-    "dateOfBirth" TIMESTAMP(3),
+    "dateOfBirth" TEXT,
     "gender" "Gender",
     "orgId" TEXT NOT NULL,
     "batchId" TEXT NOT NULL,
@@ -50,22 +47,6 @@ CREATE TABLE "Attendance" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Attendance_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Fee" (
-    "id" TEXT NOT NULL,
-    "amount" DECIMAL(10,2) NOT NULL,
-    "description" TEXT,
-    "dueDate" TIMESTAMP(3) NOT NULL,
-    "paidDate" TIMESTAMP(3),
-    "status" "FeeStatus" NOT NULL DEFAULT 'PENDING',
-    "orgId" TEXT NOT NULL,
-    "studentId" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Fee_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -95,17 +76,8 @@ CREATE INDEX "Attendance_date_idx" ON "Attendance"("date");
 -- CreateIndex
 CREATE UNIQUE INDEX "Attendance_studentId_date_key" ON "Attendance"("studentId", "date");
 
--- CreateIndex
-CREATE INDEX "Fee_orgId_idx" ON "Fee"("orgId");
-
--- CreateIndex
-CREATE INDEX "Fee_studentId_idx" ON "Fee"("studentId");
-
 -- AddForeignKey
 ALTER TABLE "Student" ADD CONSTRAINT "Student_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Attendance" ADD CONSTRAINT "Attendance_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Fee" ADD CONSTRAINT "Fee_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE CASCADE ON UPDATE CASCADE;
