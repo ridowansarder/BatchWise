@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   CheckSquareIcon,
-  UsersIcon,
   GroupIcon,
 } from "lucide-react";
 import {
@@ -30,11 +29,6 @@ const items = [
     title: "Batches",
     url: "/dashboard/batches",
     icon: GroupIcon,
-  },
-  {
-    title: "Students",
-    url: "/dashboard/students",
-    icon: UsersIcon,
   },
 ];
 

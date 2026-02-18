@@ -50,7 +50,7 @@ model Student {
 
   @@index([orgId])
   @@index([batchId])
-  @@unique([email, orgId])
+  @@unique([email, batchId])
 }
 
 enum AttendanceStatus {

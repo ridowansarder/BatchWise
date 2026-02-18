@@ -21,27 +21,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useTransition } from "react";
-import { CreateStudent } from "@/lib/actions/student";
+import { UpdateStudent } from "@/lib/actions/student";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function AddStudentModal({ batchId }: { batchId: string }) {
+interface EditStudentModalProps {
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string | null;
+    phone: string | null;
+    dateOfBirth: string | null;
+    gender: "MALE" | "FEMALE" | "OTHER" | null;
+    address: string | null;
+  };
+}
+
+export function EditStudentModal({ student }: EditStudentModalProps) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState(student.gender || "");
   const router = useRouter();
 
-  const handleCreateStudent = (formData: FormData) => {
+  const handleUpdateStudent = (formData: FormData) => {
     startTransition(async () => {
-      formData.append("batchId", batchId);
+      formData.append("studentId", student.id);
       if (gender) formData.append("gender", gender);
 
-      const result = await CreateStudent(formData);
+      const result = await UpdateStudent(formData);
 
       if (result?.success) {
-        toast.success(result.message || "Student created successfully!");
+        toast.success(result.message || "Student updated successfully!");
         setOpen(false);
-        setGender("");
         router.refresh();
       } else {
         toast.error(result?.error || "Something went wrong");
@@ -50,25 +62,25 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen} modal>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" disabled={isPending}>
-          Add Student
+        <Button variant="outline" size="sm" disabled={isPending}>
+          Edit
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
-        <form action={handleCreateStudent} className="space-y-4">
+        <form action={handleUpdateStudent} className="space-y-4">
           <DialogHeader>
-            <DialogTitle>Add Student</DialogTitle>
+            <DialogTitle>Edit Student</DialogTitle>
             <DialogDescription>
-              Fill in the student details and click create.
+              Update the student details and click save.
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
             {/* Name */}
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
@@ -79,6 +91,7 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
                   disabled={isPending}
                   autoFocus
                   placeholder="Enter first name"
+                  defaultValue={student.firstName}
                 />
               </div>
 
@@ -91,21 +104,26 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
                   required
                   disabled={isPending}
                   placeholder="Enter last name"
+                  defaultValue={student.lastName}
                 />
               </div>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  disabled={isPending}
-                  placeholder="Enter email (optional)"
-                />
-              </div>
+            {/* Email */}
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                disabled={isPending}
+                placeholder="Enter email (optional)"
+                defaultValue={student.email ?? ""}
+              />
+            </div>
+
+            {/* Phone + Student ID */}
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="phone">Phone</Label>
                 <Input
@@ -114,12 +132,13 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
                   type="text"
                   disabled={isPending}
                   placeholder="Enter phone number"
+                  defaultValue={student.phone ?? ""}
                 />
               </div>
             </div>
 
             {/* DOB + Gender */}
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="dateOfBirth">Date of Birth</Label>
                 <Input
@@ -127,6 +146,7 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
                   name="dateOfBirth"
                   type="date"
                   disabled={isPending}
+                  defaultValue={student.dateOfBirth ?? ""}
                 />
               </div>
 
@@ -158,6 +178,7 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
                 type="text"
                 disabled={isPending}
                 placeholder="Enter address"
+                defaultValue={student.address ?? ""}
               />
             </div>
           </div>
@@ -170,7 +191,7 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
             </DialogClose>
 
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Creating..." : "Create"}
+              {isPending ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
         </form>

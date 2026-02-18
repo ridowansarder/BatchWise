@@ -1,4 +1,6 @@
 import { AddStudentModal } from "@/components/AddStudentModal";
+import { DeleteBatchModal } from "@/components/DeleteBatchModal";
+import { EditBatchModal } from "@/components/EditBatchModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
@@ -25,9 +27,9 @@ const BatchDetailsPage = async ({
   const isAdmin = has({ role: "org:admin" });
 
   return (
-    <div className="py-6 px-12 space-y-5 w-full">
+    <div className="py-6 px-4 sm:px-8 md:px-12 space-y-5 w-full">
       {/* Batch Info */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center sm:justify-between">
+      <div className="flex flex-col lg:flex-row gap-3 items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{batch.name}</h1>
           <p className="text-muted-foreground mt-1">
@@ -40,11 +42,18 @@ const BatchDetailsPage = async ({
               : "Unlimited"}
           </p>
         </div>
-        {isAdmin &&
-          batch.capacity &&
-          batch.students.length < batch.capacity && (
-            <AddStudentModal batchId={batch.id} />
-          )}
+
+        <div className="flex gap-2">
+          {isAdmin && <EditBatchModal batch={batch} />}
+          {isAdmin &&
+            batch.capacity &&
+            batch.students.length < batch.capacity && (
+              <div className="flex gap-2">
+                <AddStudentModal batchId={batch.id} />
+                <DeleteBatchModal batchId={batch.id} batchName={batch.name} />
+              </div>
+            )}
+        </div>
       </div>
 
       {/* Students */}
@@ -62,28 +71,28 @@ const BatchDetailsPage = async ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {batch.students.map((student) => (
               <Card key={student.id}>
-                <Link href={`/dashboard/batches/${batch.id}/${student.id}`}  >
-                <CardHeader>
-                  <CardTitle>
-                    {student.firstName} {student.lastName}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-2">
-                  <p className="text-muted-foreground">
-                    {student.email ?? "No email provided"}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {student.phone ?? "No phone provided"}
-                  </p>
-                  {student.gender && (
-                    <p className="text-muted-foreground capitalize">
-                      {student.gender.toLowerCase()}
+                <Link href={`/dashboard/batches/${batch.id}/${student.id}`}>
+                  <CardHeader>
+                    <CardTitle>
+                      {student.firstName} {student.lastName}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-2">
+                    <p className="text-muted-foreground overflow-hidden">
+                      {student.email ?? "No email provided"}
                     </p>
-                  )}
-                </CardContent>
+                    <p className="text-muted-foreground">
+                      {student.phone ?? "No phone provided"}
+                    </p>
+                    {student.gender && (
+                      <p className="text-muted-foreground capitalize">
+                        {student.gender.toLowerCase()}
+                      </p>
+                    )}
+                  </CardContent>
                 </Link>
               </Card>
             ))}
