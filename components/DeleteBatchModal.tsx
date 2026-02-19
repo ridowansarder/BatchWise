@@ -47,7 +47,7 @@ export function DeleteBatchModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" size="sm" disabled={isPending}>
+        <Button variant="destructive" disabled={isPending}>
           Delete Batch
         </Button>
       </DialogTrigger>

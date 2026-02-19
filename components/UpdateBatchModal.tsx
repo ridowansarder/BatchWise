@@ -17,24 +17,22 @@ import { useState, useTransition } from "react";
 import { UpdateBatch } from "@/lib/actions/batch";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { BatchInput } from "@/lib/validations/batchValidator";
 
-interface EditBatchModalProps {
-  batch: {
-    id: string;
-    name: string;
-    capacity: number | null;
-    teacherName: string;
-  };
-}
-
-export function EditBatchModal({ batch }: EditBatchModalProps) {
+export function UpdateBatchModal({
+  batch,
+  id,
+}: {
+  batch: BatchInput;
+  id: string;
+}) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
   const handleUpdateBatch = (formData: FormData) => {
     startTransition(async () => {
-      formData.append("batchId", batch.id);
+      formData.append("batchId", id);
       const result = await UpdateBatch(formData);
 
       if (result?.success) {
@@ -50,9 +48,7 @@ export function EditBatchModal({ batch }: EditBatchModalProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={isPending}>
-          Edit Batch
-        </Button>
+        <Button disabled={isPending}>Update Batch</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
@@ -88,10 +84,11 @@ export function EditBatchModal({ batch }: EditBatchModalProps) {
               <Input
                 id="capacity"
                 name="capacity"
-                type="text"
+                type="number"
+                min={0}
                 placeholder="Enter capacity"
                 disabled={isPending}
-                defaultValue={batch.capacity?.toString() ?? ""}
+                defaultValue={batch.capacity?.toString()}
               />
             </div>
 

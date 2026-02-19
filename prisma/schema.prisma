@@ -24,11 +24,6 @@ model Batch {
   @@index([orgId])
   @@unique([name, orgId])
 }
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
 
 model Student {
   id          String   @id @default(cuid())
@@ -38,11 +33,11 @@ model Student {
   phone       String?
   address     String?
   dateOfBirth String?
-  gender      Gender?
+  gender      String?
   
   orgId       String
   batchId     String
-  batch       Batch    @relation(fields: [batchId], references: [id])
+  batch       Batch    @relation(fields: [batchId], references: [id], onDelete: Cascade)
   attendance  Attendance[]
 
   createdAt   DateTime @default(now())

@@ -28,20 +28,17 @@ import { toast } from "sonner";
 export function AddStudentModal({ batchId }: { batchId: string }) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
-  const [gender, setGender] = useState("");
   const router = useRouter();
+  const [gender, setGender] = useState("male");
 
   const handleCreateStudent = (formData: FormData) => {
     startTransition(async () => {
       formData.append("batchId", batchId);
-      if (gender) formData.append("gender", gender);
-
       const result = await CreateStudent(formData);
 
       if (result?.success) {
         toast.success(result.message || "Student created successfully!");
         setOpen(false);
-        setGender("");
         router.refresh();
       } else {
         toast.error(result?.error || "Something went wrong");
@@ -70,20 +67,19 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
             {/* Name */}
             <div className="grid gap-3 md:grid-cols-2">
               <div className="grid gap-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">First Name <span className="text-red-500">**</span></Label>
                 <Input
                   id="firstName"
                   name="firstName"
                   type="text"
                   required
                   disabled={isPending}
-                  autoFocus
                   placeholder="Enter first name"
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Last Name <span className="text-red-500">**</span></Label>
                 <Input
                   id="lastName"
                   name="lastName"
@@ -113,7 +109,7 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
                   name="phone"
                   type="text"
                   disabled={isPending}
-                  placeholder="Enter phone number"
+                  placeholder="Enter phone number (optional)"
                 />
               </div>
             </div>
@@ -132,18 +128,19 @@ export function AddStudentModal({ batchId }: { batchId: string }) {
 
               <div className="grid gap-2">
                 <Label>Gender</Label>
+                <input type="hidden" name="gender" value={gender} />
+
                 <Select
-                  value={gender}
-                  onValueChange={setGender}
-                  disabled={isPending}
+                  onValueChange={setGender} 
+                  defaultValue={gender}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MALE">Male</SelectItem>
-                    <SelectItem value="FEMALE">Female</SelectItem>
-                    <SelectItem value="OTHER">Other</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

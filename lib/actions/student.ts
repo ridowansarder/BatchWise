@@ -17,11 +17,11 @@ export async function CreateStudent(formData: FormData) {
   const result = studentSchema.safeParse({
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    address: formData.get("address"),
-    dateOfBirth: formData.get("dateOfBirth"),
-    gender: formData.get("gender"),
+    email: formData.get("email") || undefined,
+    phone: formData.get("phone") || undefined,
+    address: formData.get("address") || undefined,
+    dateOfBirth: formData.get("dateOfBirth") || undefined,
+    gender: formData.get("gender") || undefined,
     batchId: formData.get("batchId"),
   });
 
@@ -49,7 +49,7 @@ export async function CreateStudent(formData: FormData) {
       },
     });
 
-    revalidatePath("/dashboard/students");
+    revalidatePath("/dashboard/batches");
 
     return {
       success: true,
@@ -62,7 +62,7 @@ export async function CreateStudent(formData: FormData) {
     ) {
       return {
         success: false,
-        error: "A student with this email already exists in your organization",
+        error: "A student with this email already exists in this batch",
       };
     }
 
@@ -89,10 +89,7 @@ export async function UpdateStudent(formData: FormData) {
     };
   }
 
-  // For updates, we use a subset of the schema without batchId
-  const updateSchema = studentSchema.omit({ batchId: true });
-  
-  const result = updateSchema.safeParse({
+  const result = studentSchema.safeParse({
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),
     email: formData.get("email") || undefined,
@@ -100,7 +97,7 @@ export async function UpdateStudent(formData: FormData) {
     address: formData.get("address") || undefined,
     dateOfBirth: formData.get("dateOfBirth") || undefined,
     gender: formData.get("gender") || undefined,
-    studentId: formData.get("studentId") || undefined,
+    batchId: formData.get("batchId"),
   });
 
   if (!result.success) {
@@ -126,6 +123,7 @@ export async function UpdateStudent(formData: FormData) {
         address: data.address,
         dateOfBirth: data.dateOfBirth,
         gender: data.gender,
+        batchId: data.batchId,
       },
     });
 
@@ -142,20 +140,9 @@ export async function UpdateStudent(formData: FormData) {
     ) {
       return {
         success: false,
-        error: "A student with this email already exists in your organization",
+        error: "A student with this email already exists in this batch",
       };
     }
-
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
-      return {
-        success: false,
-        error: "Student not found",
-      };
-    }
-
     return {
       success: false,
       error: "Something went wrong",
@@ -184,7 +171,6 @@ export async function DeleteStudent(studentId: string) {
         orgId, // ensure user can only delete their own org's students
       },
     });
-
     revalidatePath("/dashboard/batches");
 
     return {
@@ -201,10 +187,5 @@ export async function DeleteStudent(studentId: string) {
         error: "Student not found",
       };
     }
-
-    return {
-      success: false,
-      error: "Something went wrong",
-    };
   }
 }

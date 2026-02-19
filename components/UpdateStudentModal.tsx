@@ -24,31 +24,16 @@ import { useState, useTransition } from "react";
 import { UpdateStudent } from "@/lib/actions/student";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { StudentInput } from "@/lib/validations/studentValidator";
 
-interface EditStudentModalProps {
-  student: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string | null;
-    phone: string | null;
-    dateOfBirth: string | null;
-    gender: "MALE" | "FEMALE" | "OTHER" | null;
-    address: string | null;
-  };
-}
-
-export function EditStudentModal({ student }: EditStudentModalProps) {
+export function UpdateStudentModal({ student }: { student: StudentInput }) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
-  const [gender, setGender] = useState(student.gender || "");
   const router = useRouter();
+  const [gender, setGender] = useState(student.gender || "male");
 
   const handleUpdateStudent = (formData: FormData) => {
     startTransition(async () => {
-      formData.append("studentId", student.id);
-      if (gender) formData.append("gender", gender);
-
       const result = await UpdateStudent(formData);
 
       if (result?.success) {
@@ -62,36 +47,30 @@ export function EditStudentModal({ student }: EditStudentModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} modal>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" disabled={isPending}>
-          Edit
-        </Button>
+        <Button disabled={isPending}>Update</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
         <form action={handleUpdateStudent} className="space-y-4">
           <DialogHeader>
-            <DialogTitle>Edit Student</DialogTitle>
+            <DialogTitle>Update Student</DialogTitle>
             <DialogDescription>
-              Update the student details and click save.
+              Modify student details and save changes.
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
-            {/* Name */}
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
                   name="firstName"
-                  type="text"
+                  defaultValue={student.firstName}
                   required
                   disabled={isPending}
-                  autoFocus
-                  placeholder="Enter first name"
-                  defaultValue={student.firstName}
                 />
               </div>
 
@@ -100,85 +79,74 @@ export function EditStudentModal({ student }: EditStudentModalProps) {
                 <Input
                   id="lastName"
                   name="lastName"
-                  type="text"
+                  defaultValue={student.lastName}
                   required
                   disabled={isPending}
-                  placeholder="Enter last name"
-                  defaultValue={student.lastName}
                 />
               </div>
             </div>
 
-            {/* Email */}
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                disabled={isPending}
-                placeholder="Enter email (optional)"
-                defaultValue={student.email ?? ""}
-              />
-            </div>
-
-            {/* Phone + Student ID */}
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={student.email || ""}
+                  disabled={isPending}
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   name="phone"
-                  type="text"
+                  defaultValue={student.phone || ""}
                   disabled={isPending}
-                  placeholder="Enter phone number"
-                  defaultValue={student.phone ?? ""}
                 />
               </div>
             </div>
 
-            {/* DOB + Gender */}
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="dateOfBirth">Date of Birth</Label>
                 <Input
                   id="dateOfBirth"
                   name="dateOfBirth"
                   type="date"
+                  defaultValue={student.dateOfBirth || ""}
                   disabled={isPending}
-                  defaultValue={student.dateOfBirth ?? ""}
                 />
               </div>
 
               <div className="grid gap-2">
                 <Label>Gender</Label>
+                <input type="hidden" name="gender" value={gender} />
                 <Select
-                  value={gender}
                   onValueChange={setGender}
+                  defaultValue={gender}
                   disabled={isPending}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MALE">Male</SelectItem>
-                    <SelectItem value="FEMALE">Female</SelectItem>
-                    <SelectItem value="OTHER">Other</SelectItem>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Address */}
             <div className="grid gap-2">
               <Label htmlFor="address">Address</Label>
               <Input
                 id="address"
                 name="address"
-                type="text"
+                defaultValue={student.address || ""}
                 disabled={isPending}
-                placeholder="Enter address"
-                defaultValue={student.address ?? ""}
               />
             </div>
           </div>
@@ -191,7 +159,7 @@ export function EditStudentModal({ student }: EditStudentModalProps) {
             </DialogClose>
 
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : "Save"}
+              {isPending ? "Updating..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </form>

@@ -46,7 +46,7 @@ export function DeleteStudentModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" size="sm" disabled={isPending}>
+        <Button variant="destructive" disabled={isPending}>
           Delete
         </Button>
       </DialogTrigger>

@@ -15,9 +15,9 @@ export async function CreateBatch(formData: FormData) {
   }
 
   const result = batchSchema.safeParse({
-    name: formData.get("name") as string,
-    capacity: formData.get("capacity") as string,
-    teacherName: formData.get("teacherName") as string,
+    name: formData.get("name"),
+    capacity: formData.get("capacity"),
+    teacherName: formData.get("teacherName"),
   });
 
   if (!result.success) {
@@ -35,7 +35,7 @@ export async function CreateBatch(formData: FormData) {
         name: data.name,
         capacity: data.capacity,
         teacherName: data.teacherName,
-        orgId, // multi-tenant isolation
+        orgId,
       },
     });
 
@@ -46,9 +46,10 @@ export async function CreateBatch(formData: FormData) {
       message: "Batch created successfully",
     };
   } catch (error) {
-    
-    if (error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002") {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
       return {
         success: false,
         error: "A batch with this name already exists",
@@ -79,9 +80,9 @@ export async function UpdateBatch(formData: FormData) {
   }
 
   const result = batchSchema.safeParse({
-    name: formData.get("name") as string,
-    capacity: formData.get("capacity") as string,
-    teacherName: formData.get("teacherName") as string,
+    name: formData.get("name"),
+    capacity: formData.get("capacity"),
+    teacherName: formData.get("teacherName"),
   });
 
   if (!result.success) {
@@ -156,39 +157,19 @@ export async function DeleteBatch(batchId: string) {
   }
 
   try {
-    // Delete all students in the batch first, then delete the batch
-    await prisma.$transaction([
-      prisma.student.deleteMany({
-        where: {
-          batchId,
-          orgId,
-        },
-      }),
-      prisma.batch.delete({
-        where: {
-          id: batchId,
-          orgId, // ensure user can only delete their own org's batches
-        },
-      }),
-    ]);
+    await prisma.batch.delete({
+      where: {
+        id: batchId,
+        orgId,
+      },
+    });
 
     revalidatePath("/dashboard/batches");
-
     return {
       success: true,
       message: "Batch deleted successfully",
     };
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
-      return {
-        success: false,
-        error: "Batch not found",
-      };
-    }
-
+  } catch {
     return {
       success: false,
       error: "Something went wrong",

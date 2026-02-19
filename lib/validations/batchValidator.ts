@@ -7,13 +7,9 @@ export const batchSchema = z.object({
     .max(100, "Batch name too long")
     .trim(),
 
-  capacity: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val, 10) : undefined))
-    .refine((val) => val === undefined || (!isNaN(val) && val > 0), {
-      message: "Capacity must be a positive number",
-    }),
+  capacity: z.coerce.number().optional().nullable(),
 
   teacherName: z.string(),
 });
+
+export type BatchInput = z.infer<typeof batchSchema>;

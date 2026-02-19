@@ -1,6 +1,6 @@
 import { AddStudentModal } from "@/components/AddStudentModal";
 import { DeleteBatchModal } from "@/components/DeleteBatchModal";
-import { EditBatchModal } from "@/components/EditBatchModal";
+import { UpdateBatchModal } from "@/components/UpdateBatchModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
@@ -44,14 +44,24 @@ const BatchDetailsPage = async ({
         </div>
 
         <div className="flex gap-2">
-          {isAdmin && <EditBatchModal batch={batch} />}
+          {isAdmin && (
+            <div className="flex gap-2">
+              {" "}
+              <UpdateBatchModal
+                batch={{
+                  name: batch.name,
+                  capacity: batch.capacity ?? undefined,
+                  teacherName: batch.teacherName,
+                }}
+                id={batch.id}
+              />{" "}
+              <DeleteBatchModal batchId={batch.id} batchName={batch.name} />
+            </div>
+          )}
           {isAdmin &&
             batch.capacity &&
             batch.students.length < batch.capacity && (
-              <div className="flex gap-2">
-                <AddStudentModal batchId={batch.id} />
-                <DeleteBatchModal batchId={batch.id} batchName={batch.name} />
-              </div>
+              <AddStudentModal batchId={batch.id} />
             )}
         </div>
       </div>

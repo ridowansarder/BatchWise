@@ -1,3 +1,5 @@
+import { DeleteStudentModal } from "@/components/DeleteStudentModal";
+import { UpdateStudentModal } from "@/components/UpdateStudentModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
@@ -6,10 +8,10 @@ import { notFound } from "next/navigation";
 const StudentDetailsPage = async ({
   params,
 }: {
-  params: { studentId: string };
+  params: Promise<{ studentId: string }>;
 }) => {
   const { orgId } = await auth();
-  const { studentId } = params;
+  const { studentId } = await params;
 
   if (!orgId) notFound();
 
@@ -34,6 +36,20 @@ const StudentDetailsPage = async ({
           <p className="text-muted-foreground mt-1">
             Batch: {student.batch?.name ?? "Not assigned"}
           </p>
+        </div>
+
+        <div className="flex gap-2">
+          <UpdateStudentModal student={{
+            firstName: student.firstName,
+            lastName: student.lastName,
+            batchId: student.batchId,
+            email: student.email ?? undefined,
+            phone: student.phone ?? undefined,
+            address: student.address ?? undefined,
+            dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : undefined,
+            gender: student.gender ?? undefined,
+          }} />
+          <DeleteStudentModal studentId={student.id} studentName={student.firstName} />
         </div>
       </div>
 

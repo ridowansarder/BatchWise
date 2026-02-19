@@ -77,8 +77,9 @@ export function AddBatchModal() {
               <Input
                 id="capacity"
                 name="capacity"
-                type="text"
+                type="number"
                 placeholder="Enter capacity"
+                min={0}
                 disabled={isPending}
               />
             </div>
