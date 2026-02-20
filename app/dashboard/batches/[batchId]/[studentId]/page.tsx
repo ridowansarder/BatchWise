@@ -10,7 +10,7 @@ const StudentDetailsPage = async ({
 }: {
   params: Promise<{ studentId: string }>;
 }) => {
-  const { orgId } = await auth();
+  const { orgId, has } = await auth();
   const { studentId } = await params;
 
   if (!orgId) notFound();
@@ -25,6 +25,8 @@ const StudentDetailsPage = async ({
     },
   });
 
+  const isAdmin = has({ role: "org:admin" });
+
   if (!student) notFound();
   return (
     <div className="py-6 px-12 space-y-6 max-w-3xl">
@@ -38,27 +40,29 @@ const StudentDetailsPage = async ({
           </p>
         </div>
 
-        <div className="flex gap-2">
-          <UpdateStudentModal
-            student={{
-              firstName: student.firstName,
-              lastName: student.lastName,
-              batchId: student.batchId,
-              email: student.email ?? undefined,
-              phone: student.phone ?? undefined,
-              address: student.address ?? undefined,
-              dateOfBirth: student.dateOfBirth
-                ? new Date(student.dateOfBirth).toISOString().split("T")[0]
-                : undefined,
-              gender: student.gender ?? undefined,
-            }}
-            studentId={student.id}
-          />
-          <DeleteStudentModal
-            studentId={student.id}
-            studentName={student.firstName}
-          />
-        </div>
+        {isAdmin && (
+          <div className="flex gap-2">
+            <UpdateStudentModal
+              student={{
+                firstName: student.firstName,
+                lastName: student.lastName,
+                batchId: student.batchId,
+                email: student.email ?? undefined,
+                phone: student.phone ?? undefined,
+                address: student.address ?? undefined,
+                dateOfBirth: student.dateOfBirth
+                  ? new Date(student.dateOfBirth).toISOString().split("T")[0]
+                  : undefined,
+                gender: student.gender ?? undefined,
+              }}
+              studentId={student.id}
+            />
+            <DeleteStudentModal
+              studentId={student.id}
+              studentName={student.firstName}
+            />
+          </div>
+        )}
       </div>
 
       {/* Student Details Card */}
