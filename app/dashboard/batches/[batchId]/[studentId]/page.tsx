@@ -39,17 +39,25 @@ const StudentDetailsPage = async ({
         </div>
 
         <div className="flex gap-2">
-          <UpdateStudentModal student={{
-            firstName: student.firstName,
-            lastName: student.lastName,
-            batchId: student.batchId,
-            email: student.email ?? undefined,
-            phone: student.phone ?? undefined,
-            address: student.address ?? undefined,
-            dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : undefined,
-            gender: student.gender ?? undefined,
-          }} />
-          <DeleteStudentModal studentId={student.id} studentName={student.firstName} />
+          <UpdateStudentModal
+            student={{
+              firstName: student.firstName,
+              lastName: student.lastName,
+              batchId: student.batchId,
+              email: student.email ?? undefined,
+              phone: student.phone ?? undefined,
+              address: student.address ?? undefined,
+              dateOfBirth: student.dateOfBirth
+                ? new Date(student.dateOfBirth).toISOString().split("T")[0]
+                : undefined,
+              gender: student.gender ?? undefined,
+            }}
+            studentId={student.id}
+          />
+          <DeleteStudentModal
+            studentId={student.id}
+            studentName={student.firstName}
+          />
         </div>
       </div>
 
@@ -72,9 +80,7 @@ const StudentDetailsPage = async ({
           <div>
             <p className="text-sm text-muted-foreground">Gender</p>
             <p className="capitalize">
-              {student.gender
-                ? student.gender.toLowerCase()
-                : "Not specified"}
+              {student.gender ? student.gender.toLowerCase() : "Not specified"}
             </p>
           </div>
 

@@ -81,11 +81,12 @@ export async function UpdateStudent(formData: FormData) {
   }
 
   const studentId = formData.get("studentId") as string;
+  const batchId = formData.get("batchId") as string;
 
-  if (!studentId) {
+  if (!studentId || !batchId) {
     return {
       success: false,
-      error: "Student ID is required",
+      error: "Student ID and Batch ID are required",
     };
   }
 
@@ -97,7 +98,8 @@ export async function UpdateStudent(formData: FormData) {
     address: formData.get("address") || undefined,
     dateOfBirth: formData.get("dateOfBirth") || undefined,
     gender: formData.get("gender") || undefined,
-    batchId: formData.get("batchId"),
+    batchId,
+    studentId,
   });
 
   if (!result.success) {

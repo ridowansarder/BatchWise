@@ -1,24 +1,27 @@
 import { AddStudentModal } from "@/components/AddStudentModal";
-import { DeleteBatchModal } from "@/components/DeleteBatchModal";
 import { UpdateBatchModal } from "@/components/UpdateBatchModal";
+import { DeleteBatchModal } from "@/components/DeleteBatchModal";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 const BatchDetailsPage = async ({
   params,
 }: {
-  params: Promise<{ batchId: string }>;
+  params: { batchId: string };
 }) => {
   const { orgId, has } = await auth();
   const { batchId } = await params;
 
-  const batch = await prisma.batch.findFirst({
-    where: { id: batchId, orgId: orgId! },
+  const batch = await prisma.batch.findUnique({
+    where: { id: batchId, orgId: orgId || undefined },
     include: {
-      students: true,
+      students: {
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
@@ -27,9 +30,9 @@ const BatchDetailsPage = async ({
   const isAdmin = has({ role: "org:admin" });
 
   return (
-    <div className="py-6 px-4 sm:px-8 md:px-12 space-y-5 w-full">
+    <div className="py-6 px-12 space-y-5 w-full">
       {/* Batch Info */}
-      <div className="flex flex-col lg:flex-row gap-3 items-start sm:justify-between">
+      <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{batch.name}</h1>
           <p className="text-muted-foreground mt-1">
@@ -42,28 +45,30 @@ const BatchDetailsPage = async ({
               : "Unlimited"}
           </p>
         </div>
-
-        <div className="flex gap-2">
-          {isAdmin && (
+        {isAdmin && (
+          <div className="flex gap-2 flex-wrap flex-col">
             <div className="flex gap-2">
-              {" "}
+              <Link href={`/dashboard/batches/${batchId}/attendance`}>
+                <Button className="bg-blue-700 text-white">Mark Attendance</Button>
+              </Link>
+              <Link href={`/dashboard/batches/${batchId}/attendance/history`}>
+                <Button className="bg-yellow-400">View Attendance History</Button>
+              </Link>
+            </div>
+            <div className="flex gap-2">
+              <AddStudentModal batchId={batch.id} />
               <UpdateBatchModal
+                id={batch.id}
                 batch={{
                   name: batch.name,
-                  capacity: batch.capacity ?? undefined,
+                  capacity: batch.capacity,
                   teacherName: batch.teacherName,
                 }}
-                id={batch.id}
-              />{" "}
+              />
               <DeleteBatchModal batchId={batch.id} batchName={batch.name} />
             </div>
-          )}
-          {isAdmin &&
-            batch.capacity &&
-            batch.students.length < batch.capacity && (
-              <AddStudentModal batchId={batch.id} />
-            )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Students */}
@@ -81,10 +86,10 @@ const BatchDetailsPage = async ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {batch.students.map((student) => (
               <Card key={student.id}>
-                <Link href={`/dashboard/batches/${batch.id}/${student.id}`}>
+                <Link href={`/dashboard/batches/${batchId}/${student.id}`}>
                   <CardHeader>
                     <CardTitle>
                       {student.firstName} {student.lastName}
@@ -94,7 +99,7 @@ const BatchDetailsPage = async ({
                     <p className="text-muted-foreground overflow-hidden">
                       {student.email ?? "No email provided"}
                     </p>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground overflow-hidden">
                       {student.phone ?? "No phone provided"}
                     </p>
                     {student.gender && (

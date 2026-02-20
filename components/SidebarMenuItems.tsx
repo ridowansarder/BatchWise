@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  CheckSquareIcon,
   GroupIcon,
 } from "lucide-react";
 import {
@@ -19,11 +18,6 @@ const items = [
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    title: "Attendance",
-    url: "/dashboard/attendance",
-    icon: CheckSquareIcon,
   },
   {
     title: "Batches",

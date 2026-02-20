@@ -26,13 +26,15 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { StudentInput } from "@/lib/validations/studentValidator";
 
-export function UpdateStudentModal({ student }: { student: StudentInput }) {
+export function UpdateStudentModal({ student, studentId }: { student: StudentInput, studentId: string }) {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const [gender, setGender] = useState(student.gender || "male");
 
   const handleUpdateStudent = (formData: FormData) => {
+    formData.append("studentId", studentId);
+    formData.append("batchId", student.batchId);
     startTransition(async () => {
       const result = await UpdateStudent(formData);
 

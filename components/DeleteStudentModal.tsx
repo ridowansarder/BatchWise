@@ -36,6 +36,7 @@ export function DeleteStudentModal({
       if (result?.success) {
         toast.success(result.message || "Student deleted successfully!");
         setOpen(false);
+        router.push("/dashboard/batches");
         router.refresh();
       } else {
         toast.error(result?.error || "Something went wrong");

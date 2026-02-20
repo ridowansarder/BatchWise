@@ -17,6 +17,7 @@ model Batch {
   orgId     String
   students  Student[]
   teacherName String  
+  attendance Attendance[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -62,7 +63,8 @@ model Attendance {
   orgId     String           
   studentId String
   student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  markedBy  String?          
+  batchId   String
+  batch     Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -70,5 +72,6 @@ model Attendance {
   @@index([orgId])
   @@index([studentId])
   @@index([date])
-  @@unique([studentId, date]) 
+  @@index([batchId])
+  @@unique([studentId, date])
 }
