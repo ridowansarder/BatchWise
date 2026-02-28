@@ -17,7 +17,8 @@ export async function CreateBatch(formData: FormData) {
   const result = batchSchema.safeParse({
     name: formData.get("name"),
     capacity: formData.get("capacity"),
-    teacherName: formData.get("teacherName"),
+    teacherId: formData.get("teacherId") || null,
+    teacherName: formData.get("teacherName") || null,
   });
 
   if (!result.success) {
@@ -27,14 +28,11 @@ export async function CreateBatch(formData: FormData) {
     };
   }
 
-  const data = result.data;
-
   try {
     await prisma.batch.create({
       data: {
-        name: data.name,
-        capacity: data.capacity,
-        teacherName: data.teacherName,
+        ...result.data,
+        teacherName: result.data.teacherName || "",
         orgId,
       },
     });
@@ -92,18 +90,20 @@ export async function UpdateBatch(formData: FormData) {
     };
   }
 
-  const data = result.data;
-
   try {
+    const batch = await prisma.batch.findFirst({
+      where: { id: batchId, orgId },
+    });
+
+    if (!batch) {
+      return { success: false, error: "Batch not found" };
+    }
+
     await prisma.batch.update({
-      where: {
-        id: batchId,
-        orgId,
-      },
+      where: { id: batch.id },
       data: {
-        name: data.name,
-        capacity: data.capacity,
-        teacherName: data.teacherName,
+        ...result.data,
+        teacherName: result.data.teacherName || "",
       },
     });
 
@@ -157,19 +157,33 @@ export async function DeleteBatch(batchId: string) {
   }
 
   try {
-    await prisma.batch.delete({
-      where: {
-        id: batchId,
-        orgId,
-      },
+    const batch = await prisma.batch.findFirst({
+      where: { id: batchId, orgId },
     });
 
+    if (!batch) {
+      return { success: false, error: "Batch not found" };
+    }
+
+    await prisma.batch.delete({ where: { id: batch.id } });
+
     revalidatePath("/dashboard/batches");
+
     return {
       success: true,
       message: "Batch deleted successfully",
     };
-  } catch {
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      return {
+        success: false,
+        error: "Batch not found",
+      };
+    }
+
     return {
       success: false,
       error: "Something went wrong",

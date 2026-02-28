@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -49,15 +48,12 @@ export function AddBatchModal() {
         <form action={handleCreateBatch} className="space-y-4">
           <DialogHeader>
             <DialogTitle>Add Batch</DialogTitle>
-            <DialogDescription>
-              Create a new batch for your coaching center.
-            </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
             {/* Batch Name */}
             <div className="grid gap-2">
-              <Label htmlFor="name">Batch Name</Label>
+              <Label htmlFor="name">Batch Name <span className="text-red-500">**</span></Label>
               <Input
                 id="name"
                 name="name"
@@ -78,20 +74,22 @@ export function AddBatchModal() {
                 id="capacity"
                 name="capacity"
                 type="number"
-                placeholder="Enter capacity"
-                min={0}
+                placeholder="Leave empty for unlimited"
+                min={1}
                 disabled={isPending}
               />
             </div>
 
-            {/* Teacher ID */}
             <div className="grid gap-2">
-              <Label htmlFor="teacherId">Teacher Name</Label>
+              <Label htmlFor="teacherName">Teacher Name <span className="text-red-500">**</span></Label>
               <Input
                 id="teacherName"
                 name="teacherName"
-                placeholder="Enter teacher name"
+                type="text"
                 disabled={isPending}
+                minLength={2}
+                required
+                placeholder="Enter teacher name"
               />
             </div>
           </div>

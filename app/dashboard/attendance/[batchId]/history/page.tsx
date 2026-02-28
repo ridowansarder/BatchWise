@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 const AttendanceHistoryPage = async ({
   params,
 }: {
-  params: { batchId: string };
+  params: Promise<{ batchId: string }>;
 }) => {
   const { orgId } = await auth();
   const { batchId } = await params;
@@ -24,7 +24,6 @@ const AttendanceHistoryPage = async ({
 
   if (!batch) notFound();
 
-  // Get last 30 days of attendance
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -44,7 +43,6 @@ const AttendanceHistoryPage = async ({
     },
   });
 
-  // Group by date
   const attendanceByDate = attendanceRecords.reduce(
     (acc, record) => {
       const dateKey = record.date.toISOString().split("T")[0];
@@ -57,7 +55,6 @@ const AttendanceHistoryPage = async ({
     {} as Record<string, typeof attendanceRecords>,
   );
 
-  // Calculate student-wise statistics
   const studentStats = batch.students.map((student) => {
     const studentAttendance = attendanceRecords.filter(
       (r) => r.studentId === student.id,
@@ -90,7 +87,7 @@ const AttendanceHistoryPage = async ({
             {batch.name} — Last 30 days
           </p>
         </div>
-        <Link href={`/dashboard/batches/${batchId}/attendance`}>
+        <Link href={`/dashboard/attendance/${batchId}`}>
           <Button>Mark Attendance</Button>
         </Link>
       </div>
@@ -98,53 +95,72 @@ const AttendanceHistoryPage = async ({
       {/* Student Statistics */}
       <div>
         <h2 className="text-lg font-medium mb-4">Student Statistics</h2>
-        <div className="grid gap-3">
-          {studentStats.map((stat) => (
-            <Card key={stat.student.id}>
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <p className="font-medium">
-                      {stat.student.firstName} {stat.student.lastName}
-                    </p>
-                  </div>
 
-                  <div className="flex gap-6 text-sm">
+        {batch.students.length === 0 ? (
+          <Card>
+            <CardContent className="p-6 text-center">
+              <p className="text-muted-foreground">
+                No students found in this batch.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-3">
+            {studentStats.map((stat) => (
+              <Card key={stat.student.id}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <p className="text-muted-foreground">Attendance</p>
-                      <p className="font-semibold text-lg">
-                        {stat.percentage}%
+                      <p className="font-medium">
+                        {stat.student.firstName} {stat.student.lastName}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Present</p>
-                      <p className="font-semibold text-green-600">
-                        {stat.present}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Absent</p>
-                      <p className="font-semibold text-red-600">
-                        {stat.absent}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Late</p>
-                      <p className="font-semibold text-yellow-600">
-                        {stat.late}
-                      </p>
+
+                    <div className="flex gap-6 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Attendance</p>
+                        <p className="font-semibold text-lg">
+                          {stat.percentage}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Present</p>
+                        <p className="font-semibold text-green-600">
+                          {stat.present}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Absent</p>
+                        <p className="font-semibold text-red-600">
+                          {stat.absent}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Late</p>
+                        <p className="font-semibold text-yellow-600">
+                          {stat.late}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Daily Records */}
       <div>
         <h2 className="text-lg font-medium mb-4">Daily Records</h2>
+        {attendanceRecords.length === 0 && (
+          <Card>
+            <CardContent className="p-10 text-center">
+              <p className="text-muted-foreground">
+                No attendance records in the last 30 days.
+              </p>
+            </CardContent>
+          </Card>
+        )}
         <div className="space-y-4">
           {Object.entries(attendanceByDate)
             .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))

@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  GroupIcon,
+  UserCogIcon,
+  SchoolIcon,
+  ClipboardCheckIcon,
 } from "lucide-react";
 import {
   SidebarMenu,
@@ -22,8 +24,18 @@ const items = [
   {
     title: "Batches",
     url: "/dashboard/batches",
-    icon: GroupIcon,
+    icon: SchoolIcon,
   },
+  {
+    title: "Students",
+    url: "/dashboard/students",
+    icon: UserCogIcon,
+  },
+  {
+    title: "Attendance",
+    url: "/dashboard/attendance",
+    icon: ClipboardCheckIcon,
+  }
 ];
 
 export function SidebarMenuItems() {

@@ -16,14 +16,32 @@ model Batch {
   
   orgId     String
   students  Student[]
-  teacherName String  
   attendance Attendance[]
+  teacherId String?
+  teacherName String
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([orgId])
   @@unique([name, orgId])
+}
+
+model Teacher {
+  id        String   @id @default(cuid())
+  orgId     String
+  userId    String   // Clerk user id
+  name      String?
+  email     String?
+
+  batches   Batch[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@unique([orgId, userId])
 }
 
 model Student {
